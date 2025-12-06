@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>THE OBSERVER — Avery Lake</title>
+
+  <meta name="description"
+    content="A visual audit of the human condition. Drift from the micro to the macro. Capture a singular moment." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="01 // THE OBSERVER" />
+  <meta property="og:description" content="The dust gazes back. Navigate the logarithmic scale of the universe." />
+  <meta property="og:image" content="https://observer.averylakeofficial.com/preview.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://observer.averylakeofficial.com/preview.jpg" />
+  <meta property="og:url" content="https://observer.averylakeofficial.com/" />
+
+  <!-- Favicon -->
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23ff3333'/></svg>">
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap");
+
+    :root {
+      --void: #050505;
+      --machine-black: #0a0a0a;
+      --ink: #e6e6e6;
+      --muted: #8a8a8a;
+      --accent: #ff3333;
+      --font-ui: "Space Grotesk", sans-serif;
+      --font-mono: "Space Mono", monospace;
+      --shadow: 0 0 60px rgba(255, 51, 51, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--void);
+      color: var(--ink);
+      font-family: var(--font-ui);
+      overflow: hidden;
+      overscroll-behavior: none;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* LAYERS */
+    #three-container {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    #singularity-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    #ui-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .clickable {
+      pointer-events: auto !important;
+      cursor: pointer;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 2rem 2.5rem;
+      width: 100%;
+    }
+
+    .title {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      letter-spacing: 0.35rem;
+      text-transform: uppercase;
+      color: #fff;
+      opacity: 0.85;
+      user-select: none;
+    }
+
+    .protocol-subtitle {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 2px;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    /* AUDIO TOGGLE (Unified) */
+    .audio-toggle {
+      font-family: var(--font-ui);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: transparent;
+      color: rgba(255, 255, 255, 0.4);
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .audio-toggle:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .audio-toggle.active {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* NAV ZONES */
+    .nav-zone {
+      width: 100%;
+      text-align: center;
+      padding: 1rem 0;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.35rem;
+      text-transform: uppercase;
+      opacity: 0.35;
+      color: #fff;
+      transition: opacity .2s, color .2s, letter-spacing .2s;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .nav-zone:hover {
+      opacity: 1;
+      color: var(--accent);
+      letter-spacing: 0.45rem;
+    }
+
+    /* CENTER PROMPT */
+    .hud {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .prompt-box {
+      position: absolute;
+      top: 22%;
+      width: 86%;
+      text-align: center;
+    }
+
+    #prompt {
+      font-weight: 300;
+      font-size: 1.35rem;
+      letter-spacing: 0.12rem;
+      text-transform: uppercase;
+      line-height: 1.35;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      text-shadow: 0 0 20px rgba(0, 0, 0, 0.85);
+    }
+
+    /* RIGHT PANEL */
+    .right-panel {
+      position: absolute;
+      right: 2.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 24px;
+      pointer-events: auto;
+    }
+
+    .capture-btn {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 12px 18px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.18rem;
+      text-transform: uppercase;
+      transition: all .2s ease;
+      box-shadow: 0 0 24px rgba(255, 255, 255, 0.10);
+      touch-action: manipulation;
+    }
+
+    .capture-btn:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .readout {
+      text-align: right;
+      border-right: 2px solid var(--accent);
+      padding-right: 14px;
+      user-select: none;
+    }
+
+    #loc {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--accent);
+      letter-spacing: 0.04rem;
+      text-transform: uppercase;
+    }
+
+    #scale {
+      margin-top: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.08rem;
+      text-transform: uppercase;
+    }
+
+    #coord {
+      margin-top: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: rgba(255, 255, 255, 0.35);
+      letter-spacing: 0.10rem;
+      text-transform: uppercase;
+    }
+
+    /* LEGEND */
+    .legend {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .leg-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0.35;
+      transition: opacity .2s, transform .2s;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .leg-item:hover {
+      opacity: 1;
+      transform: translateX(-4px);
+    }
+
+    .leg-item.active {
+      opacity: 1;
+      transform: translateX(-4px) scale(1.02);
+    }
+
+    .leg-text {
+      text-align: right;
+      line-height: 1.05;
+    }
+
+    .leg-main {
+      font-family: var(--font-ui);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.10rem;
+      text-transform: uppercase;
+    }
+
+    .leg-sub {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: var(--muted);
+      letter-spacing: 0.08rem;
+      text-transform: uppercase;
+    }
+
+    .leg-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: 0.25;
+    }
+
+    .leg-item.active .leg-dot {
+      background: var(--accent);
+      opacity: 1;
+      box-shadow: 0 0 14px rgba(255, 51, 51, 0.55);
+    }
+
+    .leg-line {
+      width: 1px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.10);
+      margin-right: 3px;
+    }
+
+    /* FOOTER */
+    .footer {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 2rem 2.5rem;
+      width: 100%;
+    }
+
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .reset-link {
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.4);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .reset-link:hover {
+      color: #fff;
+    }
+
+    .footer-credit {
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.4);
+      text-decoration: none;
+    }
+
+    .footer-credit:hover {
+      color: #fff;
+    }
+
+    .music-credit {
+      font-size: 8px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .audit-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 2px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.12rem;
+      text-transform: uppercase;
+      transition: all .2s;
+      touch-action: manipulation;
+      text-decoration: none;
+    }
+
+    .audit-btn:hover {
+      border-color: rgba(255, 51, 51, 0.65);
+      color: var(--accent);
+      box-shadow: 0 0 20px rgba(255, 51, 51, 0.10);
+    }
+
+    /* NOISE */
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: 9;
+      pointer-events: none;
+      opacity: 0.06;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 1px, transparent 1px, transparent 2px),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 3px);
+      mix-blend-mode: overlay;
+    }
+
+    /* FLASH */
+    #flash {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: #fff;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.12s ease;
+    }
+
+    /* OVERLAYS */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      touch-action: manipulation;
+    }
+
+    .overlay::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: #000;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      position: relative;
+      z-index: 1;
+      width: min(560px, 94vw);
+      background: #000;
+      border: 1px solid rgba(255, 51, 51, 0.60);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      max-height: 88vh;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .modal h2 {
+      margin: 0 0 8px 0;
+      color: var(--accent);
+      font-size: 1.0rem;
+      letter-spacing: 0.14rem;
+      text-transform: uppercase;
+      font-family: var(--font-ui);
+    }
+
+    .modal p {
+      margin: 0 0 14px 0;
+      color: rgba(255, 255, 255, 0.65);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      line-height: 1.45;
+      letter-spacing: 0.04rem;
+    }
+
+    .modal .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: none;
+      background: #fff;
+      color: #000;
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .2s;
+      flex: 1;
+      min-width: 180px;
+      touch-action: manipulation;
+    }
+
+    .btn:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn.outline {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.70);
+      color: #fff;
+    }
+
+    .btn.outline:hover {
+      border-color: rgba(255, 51, 51, 0.65);
+      color: var(--accent);
+      background: transparent;
+    }
+
+    .btn.disabled {
+      opacity: 0.28;
+      pointer-events: none;
+    }
+
+    .input {
+      width: 100%;
+      background: #0f0f0f;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      padding: 14px 14px;
+      font-family: var(--font-mono);
+      letter-spacing: 0.10rem;
+      text-transform: uppercase;
+      outline: none;
+      margin: 10px 0 12px 0;
+      touch-action: manipulation;
+    }
+
+    .input:focus {
+      border-color: rgba(255, 51, 51, 0.65);
+    }
+
+    .tiny {
+      margin-top: 12px;
+      color: rgba(255, 255, 255, 0.38);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      line-height: 1.45;
+      letter-spacing: 0.04rem;
+    }
+
+    /* UNIFIED START OVERLAY */
+    .start-modal {
+      text-align: center;
+      border: none;
+      background: transparent;
+    }
+
+    .start-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .start-by {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 3px;
+      color: rgba(255, 255, 255, 0.4);
+      margin: 0 0 8px 0;
+    }
+
+    .start-artist {
+      font-size: 14px;
+      letter-spacing: 4px;
+      color: #fff;
+      margin: 0 0 50px 0;
+    }
+
+    .btn-initialize {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 18px 50px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-initialize:hover {
+      background: rgba(255, 51, 51, 0.1);
+      box-shadow: 0 0 30px rgba(255, 51, 51, 0.3);
+    }
+
+    /* MOBILE */
+    @media (max-width: 768px) {
+
+      .top-bar,
+      .footer {
+        padding: 1.5rem;
+      }
+
+      .right-panel {
+        right: 1.5rem;
+        top: auto;
+        bottom: 7.2rem;
+        transform: none;
+        gap: 14px;
+      }
+
+      #prompt {
+        font-size: 1.05rem;
+      }
+
+      .prompt-box {
+        top: 18%;
+        width: 92%;
+      }
+
+      .nav-zone {
+        font-size: 0.66rem;
+        letter-spacing: 0.28rem;
+      }
+
+      .title {
+        font-size: 0.78rem;
+        letter-spacing: 0.30rem;
+      }
+
+      #loc {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+
+<body>
+  <!-- IN-APP VIEWER GATE -->
+  <div id="inapp" class="overlay">
+    <div class="modal">
+      <h2>RESTRICTED ENVIRONMENT</h2>
+      <p>This protocol must be opened in a native browser (Chrome / Safari / Firefox). In-app viewers can break audio,
+        capture, and downloads.</p>
+      <div class="row">
+        <button id="btn-copy" class="btn outline clickable" type="button">COPY LINK</button>
+        <button id="btn-open" class="btn clickable" type="button">OPEN IN BROWSER</button>
+      </div>
+      <div class="tiny">If "Open" fails, paste the copied link into your browser.</div>
+    </div>
+  </div>
+
+  <!-- START (UNIFIED) -->
+  <div id="start" class="overlay active">
+    <div class="modal start-modal">
+      <div class="start-title">THE OBSERVER</div>
+      <p class="start-by">by</p>
+      <p class="start-artist">AVERY LAKE</p>
+      <button id="btn-begin" class="btn-initialize clickable" type="button">INITIALIZE</button>
+      <div class="tiny" style="margin-top:30px;">
+        (Turn on sound for full effect)
+      </div>
+    </div>
+  </div>
+
+  <!-- UI -->
+  <div id="ui-layer">
+    <div class="top-bar">
+      <div>
+        <div class="title">The Observer</div>
+        <div class="protocol-subtitle">Protocol 01</div>
+      </div>
+      <button class="audio-toggle clickable" id="audio-toggle">AUDIO: OFF</button>
+    </div>
+
+    <div class="nav-zone clickable" id="btn-up">&uarr; DRIFT TO THE ABYSS &uarr;</div>
+
+    <div class="hud">
+      <div class="prompt-box">
+        <div id="prompt">INITIALIZING...</div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <button id="btn-capture" class="capture-btn clickable" type="button">[ CAPTURE ]</button>
+
+      <div class="readout">
+        <div id="loc">HUMAN SINGULARITY</div>
+        <div id="scale">SCALE: 10^0 m</div>
+        <div id="coord">COORD: Z 0 / 15000</div>
+      </div>
+
+      <div class="legend">
+        <div class="leg-item clickable" id="leg-cosmic">
+          <div class="leg-text">
+            <div class="leg-main">COSMIC</div>
+            <div class="leg-sub">Singularity</div>
+          </div>
+          <div class="leg-dot"></div>
+        </div>
+        <div class="leg-line"></div>
+        <div class="leg-item active clickable" id="leg-human">
+          <div class="leg-text">
+            <div class="leg-main">HUMAN</div>
+            <div class="leg-sub">Singularity</div>
+          </div>
+          <div class="leg-dot"></div>
+        </div>
+        <div class="leg-line"></div>
+        <div class="leg-item clickable" id="leg-quantum">
+          <div class="leg-text">
+            <div class="leg-main">QUANTUM</div>
+            <div class="leg-sub">Singularity</div>
+          </div>
+          <div class="leg-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-zone clickable" id="btn-down">&darr; DRIFT TO THE DUST &darr;</div>
+
+    <div class="footer">
+      <div class="footer-left">
+        <span class="reset-link clickable" onclick="location.reload()">RESET PROTOCOL</span>
+        <a class="footer-credit clickable" href="https://www.averylakeofficial.com/" target="_blank" rel="noopener">AN
+          ART OF AVERY LAKE EXPERIMENT</a>
+        <span style="font-size: 8px; opacity: 0.5;">© 2026 Avery Lake. All rights reserved.</span>
+      </div>
+      <a href="https://digital.averylakeofficial.com/" class="audit-btn clickable">CONTINUE THE AUDIT</a>
+    </div>
+  </div>
+
+  <div class="noise"></div>
+  <div id="flash"></div>
+
+  <!-- VISUALS -->
+  <div id="three-container"></div>
+  <canvas id="singularity-canvas"></canvas>
+
+  <!-- CAPTURE / EXPORT MODAL (UNIFIED) -->
+  <div id="capture-overlay" class="overlay">
+    <div class="modal" style="width:320px; text-align:center; border-color:var(--accent);">
+      <div
+        style="font-size:12px; font-weight:700; letter-spacing:3px; color:var(--accent); margin-bottom:25px; text-transform:uppercase;">
+        DATA CAPTURED</div>
+
+      <input id="subject-input" class="input clickable" type="text" maxlength="24" placeholder="ENTER SUBJECT NAME"
+        autocomplete="off" style="text-align:center; margin-bottom:20px;" />
+
+      <button id="btn-dl-artifact" class="btn clickable" type="button"
+        style="margin-bottom:10px; width:100%; text-align:left; padding-left:20px;">
+        <span style="opacity:0.5; margin-right:8px;">1.</span> DOWNLOAD ARTIFACT (IMAGE)
+      </button>
+      <button id="btn-dl-log" class="btn outline clickable" type="button"
+        style="margin-bottom:10px; width:100%; text-align:left; padding-left:20px;">
+        <span style="opacity:0.5; margin-right:8px;">2.</span> DOWNLOAD DATA LOG
+      </button>
+      <button id="btn-commission" class="btn outline disabled clickable" type="button"
+        style="margin-bottom:10px; width:100%; text-align:left; padding-left:20px; opacity:0.3;">
+        <span style="opacity:0.5; margin-right:8px;">3.</span> COMMISSION INQUIRY (optional)
+      </button>
+
+      <div style="height:10px;"></div>
+
+      <a href="https://digital.averylakeofficial.com/" class="btn outline clickable"
+        style="text-decoration:none; text-align:left; width:100%; display:block; padding-left:20px;">
+        <span style="opacity:0.5; margin-right:8px;">4.</span> CONTINUE THE AUDIT
+      </a>
+
+      <div style="margin-top:15px; text-align:center;">
+        <span class="clickable" onclick="location.reload()"
+          style="font-size:9px; letter-spacing:1px; color:rgba(255,255,255,0.4); text-decoration:underline; cursor:pointer;">RESET
+          PROTOCOL</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /***********************
+     * THE OBSERVER — stable capture + mobile audio + performance
+     ***********************/
+
+    // ---------- Device / perf ----------
+    const IS_MOBILE = matchMedia("(max-width: 768px)").matches || /Android|iPhone|iPad|Pixel/i.test(navigator.userAgent);
+
+    // ---------- Config ----------
+    const MAX = 15000;
+    const DAMP = 0.085;
+
+    // Export sizes
+    const POSTER_W = 2250;  // 3:4
+    const POSTER_H = 3000;
+    const MONO_W = 1080;    // 9:16
+    const MONO_H = 1920;
+
+    // ---------- DOM ----------
+    const el = {
+      inapp: document.getElementById("inapp"),
+      btnCopy: document.getElementById("btn-copy"),
+      btnOpen: document.getElementById("btn-open"),
+
+      start: document.getElementById("start"),
+      begin: document.getElementById("btn-begin"),
+      prompt: document.getElementById("prompt"),
+      loc: document.getElementById("loc"),
+      scale: document.getElementById("scale"),
+      coord: document.getElementById("coord"),
+
+      btnUp: document.getElementById("btn-up"),
+      btnDown: document.getElementById("btn-down"),
+      btnCapture: document.getElementById("btn-capture"),
+
+      legCosmic: document.getElementById("leg-cosmic"),
+      legHuman: document.getElementById("leg-human"),
+      legQuantum: document.getElementById("leg-quantum"),
+
+      audioToggle: document.getElementById("audio-toggle"),
+
+      flash: document.getElementById("flash"),
+
+      overlay: document.getElementById("capture-overlay"),
+      subject: document.getElementById("subject-input"),
+      btnDlArtifact: document.getElementById("btn-dl-artifact"),
+      btnDlLog: document.getElementById("btn-dl-log"),
+      btnCommission: document.getElementById("btn-commission"),
+    };
+
+    // ---------- In-app viewer gate ----------
+    const INAPP_RE = /Instagram|FBAN|FBAV|TikTok|Line|WeChat|wv|; wv\)/i;
+    const isInApp = INAPP_RE.test(navigator.userAgent || "");
+    if (isInApp) {
+      el.inapp.classList.add("active");
+      const link = location.href;
+      el.btnCopy.onclick = async () => {
+        try { await navigator.clipboard.writeText(link); el.btnCopy.textContent = "COPIED"; setTimeout(() => el.btnCopy.textContent = "COPY LINK", 1200); }
+        catch { alert("Copy failed. Please manually copy the URL from the address bar."); }
+      };
+      el.btnOpen.onclick = () => {
+        window.open(link, "_blank", "noopener");
+      };
+    }
+
+    // ---------- Steps (match experience + artifacts) ----------
+    const STEPS = [
+      { start: -15000, end: -12000, label: "COSMIC SINGULARITY", prompt: "THE ABYSS GAZES BACK." },
+      { start: -12000, end: -8000, label: "GALACTIC WEB", prompt: "THE STARS ARE BURNING GHOSTS." },
+      { start: -8000, end: -4000, label: "INTERSTELLAR SPACE", prompt: "GRAVITY BENDS THE LIGHT." },
+      { start: -4000, end: -1000, label: "ATMOSPHERE", prompt: "BREATHING IN THE SKY." },
+      { start: -1000, end: 1000, label: "HUMAN SINGULARITY", prompt: "IS YOUR PUPIL A BLACK HOLE?" },
+      { start: 1000, end: 3000, label: "CELLULAR TISSUE", prompt: "ARE YOU ONE THING, OR MANY?" },
+      { start: 3000, end: 5000, label: "MOLECULAR BONDS", prompt: "GEOMETRY BECOMES SUBSTANCE." },
+      { start: 5000, end: 8000, label: "ATOMIC LATTICE", prompt: "A CATHEDRAL OF EMPTY SPACE." },
+      { start: 8000, end: 12000, label: "SUBATOMIC FIELD", prompt: "PROBABILITY IS THE ONLY LAW." },
+      { start: 12000, end: 15000, label: "COSMIC SINGULARITY", prompt: "THE DUST GAZES BACK." },
+    ];
+
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+    function within(pos, s) { return pos >= Math.min(s.start, s.end) && pos <= Math.max(s.start, s.end); }
+    function getStep(pos) {
+      for (const s of STEPS) if (within(pos, s)) return s;
+      return STEPS[4];
+    }
+
+    function exponentFromDepth(depth) {
+      if (depth < 0) return Math.round((Math.abs(depth) / MAX) * 26);
+      return -Math.round((depth / MAX) * 35);
+    }
+
+    function coordLine(depth) {
+      const z = Math.round(depth);
+      return `COORD: Z ${z} / ${MAX}`;
+    }
+
+    // ---------- Audio ----------
+    class AudioEngine {
+      constructor() { this.ctx = null; this.osc = null; this.gain = null; this.filter = null; this.on = true; this.ready = false; }
+      init() {
+        if (this.ready) return;
+        const AC = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AC();
+        this.osc = this.ctx.createOscillator();
+        this.osc.type = "sawtooth";
+        this.osc.frequency.value = 60;
+
+        this.filter = this.ctx.createBiquadFilter();
+        this.filter.type = "lowpass";
+        this.filter.frequency.value = 280;
+
+        this.gain = this.ctx.createGain();
+        this.gain.gain.value = 0.045;
+
+        this.osc.connect(this.filter);
+        this.filter.connect(this.gain);
+        this.gain.connect(this.ctx.destination);
+        this.osc.start();
+
+        this.ready = true;
+      }
+      async resume() {
+        if (!this.ready) return;
+        if (this.ctx && this.ctx.state !== "running") {
+          try { await this.ctx.resume(); } catch (_) { }
+        }
+      }
+      setOn(flag) {
+        this.on = !!flag;
+        if (!this.ready) return;
+        const target = this.on ? 0.045 : 0.0;
+        this.gain.gain.setTargetAtTime(target, this.ctx.currentTime, 0.08);
+      }
+      async toggle() {
+        if (!this.ready) this.init();
+        await this.resume();
+        this.setOn(!this.on);
+        return this.on;
+      }
+      update(depth) {
+        if (!this.ready || !this.on) return;
+        const t = Math.abs(depth) / MAX;
+        this.osc.frequency.setTargetAtTime(55 + (t * 120), this.ctx.currentTime, 0.10);
+        this.filter.frequency.setTargetAtTime(240 + (t * 1200), this.ctx.currentTime, 0.10);
+      }
+    }
+    const audio = new AudioEngine();
+
+    function refreshAudioUI() {
+      el.audioToggle.textContent = audio.on ? "AUDIO: ON" : "AUDIO: OFF";
+      if (audio.on) {
+        el.audioToggle.classList.add("active");
+      } else {
+        el.audioToggle.classList.remove("active");
+      }
+    }
+
+    // ---------- Three.js ----------
+    let scene, camera, renderer, stars;
+    function initThree() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50000);
+      camera.position.z = 0;
+
+      const antialias = !IS_MOBILE;
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias, preserveDrawingBuffer: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(IS_MOBILE ? 1 : Math.min(window.devicePixelRatio || 1, 2));
+
+      const host = document.getElementById("three-container");
+      host.innerHTML = "";
+      host.appendChild(renderer.domElement);
+
+      const starCount = IS_MOBILE ? 2600 : 6500;
+      const geo = new THREE.BufferGeometry();
+      const pos = new Float32Array(starCount * 3);
+      for (let i = 0; i < starCount; i++) {
+        pos[i * 3 + 0] = (Math.random() - 0.5) * 12000;
+        pos[i * 3 + 1] = (Math.random() - 0.5) * 12000;
+        pos[i * 3 + 2] = (Math.random() - 0.5) * 45000;
+      }
+      geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+      const mat = new THREE.PointsMaterial({ color: 0xffffff, size: 2, transparent: true, opacity: 0.75 });
+      stars = new THREE.Points(geo, mat);
+      scene.add(stars);
+
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    }
+
+    // ---------- 2D singularity ----------
+    const singCanvas = document.getElementById("singularity-canvas");
+    const sctx = singCanvas.getContext("2d");
+    let W = 0, H = 0;
+
+    function resize2D() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      const dpr = IS_MOBILE ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+      singCanvas.width = Math.floor(W * dpr);
+      singCanvas.height = Math.floor(H * dpr);
+      singCanvas.style.width = W + "px";
+      singCanvas.style.height = H + "px";
+      sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener("resize", resize2D);
+
+    function drawSingularity(ctx, width, height, depth, phaseMillis, isArtifact = false) {
+      const cx = width / 2;
+      const cy = height / 2;
+
+      const base = Math.min(width, height);
+      const r0 = base * (isArtifact ? 0.15 : 0.12);
+
+      const step = getStep(depth);
+      const t = (phaseMillis || performance.now()) * 0.001;
+
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, r0, 0, Math.PI * 2);
+      ctx.fillStyle = "#000";
+      ctx.fill();
+
+      const intensity = Math.min(1, Math.abs(depth) / MAX);
+      const glow = (isArtifact ? 16 : 10) + intensity * (isArtifact ? 28 : 22);
+
+      function ring(color, radius, lw, blur, alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha ?? 1;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lw;
+        ctx.shadowBlur = blur;
+        ctx.shadowColor = color;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ring("rgba(255,51,51,0.18)", r0 * 1.95, 1.2, 10, 1);
+
+      if (step.label === "COSMIC SINGULARITY") {
+        ring("rgba(255,255,255,0.55)", r0 * 2.25, 5, glow + 18, 1);
+        ring("rgba(120,170,255,0.22)", r0 * 3.60, 2, glow + 24, 1);
+
+        ctx.save();
+        ctx.globalAlpha = 0.22;
+        ctx.strokeStyle = "rgba(255,255,255,0.30)";
+        ctx.lineWidth = 1.5;
+        ctx.shadowBlur = glow + 10;
+        ctx.shadowColor = "rgba(255,255,255,0.25)";
+        const wob = 0.18 * Math.sin(t * 0.9);
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, r0 * 4.2, r0 * (1.15 + wob), t * 0.2, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+      else if (step.label === "GALACTIC WEB") {
+        ctx.save();
+        ctx.strokeStyle = "rgba(200,220,255,0.22)";
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 4; i++) {
+          const rr = r0 * (2.2 + i * 0.55);
+          const a0 = t * 0.35 + i * 0.6;
+          ctx.beginPath();
+          ctx.arc(cx, cy, rr, a0, a0 + Math.PI * 1.2);
+          ctx.stroke();
+        }
+        ctx.restore();
+        ring("rgba(255,255,255,0.18)", r0 * 3.15, 2, glow + 10, 1);
+      }
+      else if (step.label === "INTERSTELLAR SPACE") {
+        ring("rgba(255,255,255,0.18)", r0 * 4.20, 2, glow + 16, 1);
+        ring("rgba(255,255,255,0.08)", r0 * 2.90, 2, glow + 8, 1);
+      }
+      else if (step.label === "ATMOSPHERE") {
+        ring("rgba(255,255,255,0.12)", r0 * 2.65, 2, glow + 6, 1);
+        ring("rgba(255,255,255,0.06)", r0 * 3.35, 2, glow + 6, 1);
+      }
+      else if (step.label === "HUMAN SINGULARITY") {
+        ring("rgba(255,255,255,0.16)", r0 * 3.05, 2, glow + 6, 1);
+        ctx.save();
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 72; i++) {
+          const a = (i / 72) * Math.PI * 2 + t * 0.08;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(a) * r0 * 1.25, cy + Math.sin(a) * r0 * 1.25);
+          ctx.lineTo(cx + Math.cos(a) * r0 * 3.05, cy + Math.sin(a) * r0 * 3.05);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+      else if (step.label === "CELLULAR TISSUE") {
+        ring("rgba(255,255,255,0.10)", r0 * 2.35, 2, glow + 6, 1);
+        ring("rgba(255,255,255,0.06)", r0 * 3.00, 2, glow + 6, 1);
+      }
+      else if (step.label === "MOLECULAR BONDS") {
+        ctx.save();
+        ctx.strokeStyle = "rgba(255,51,51,0.22)";
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = glow + 6;
+        ctx.shadowColor = "rgba(255,51,51,0.20)";
+        const R = r0 * 2.7;
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const a = i * Math.PI / 3 + t * 0.08;
+          const x = cx + Math.cos(a) * R;
+          const y = cy + Math.sin(a) * R;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+        ring("rgba(255,255,255,0.06)", r0 * 3.35, 2, glow + 6, 1);
+      }
+      else if (step.label === "ATOMIC LATTICE") {
+        ctx.save();
+        ctx.strokeStyle = "rgba(255,51,51,0.22)";
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 3; i++) {
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(i * Math.PI / 3 + t * 0.12);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, r0 * 3.3, r0 * 1.05, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+        ctx.restore();
+        ring("rgba(255,255,255,0.05)", r0 * 4.10, 2, glow + 6, 1);
+      }
+      else if (step.label === "SUBATOMIC FIELD") {
+        ring("rgba(255,51,51,0.20)", r0 * 2.65, 2, glow + 10, 1);
+        ring("rgba(255,255,255,0.06)", r0 * 3.55, 2, glow + 10, 1);
+        ring("rgba(255,255,255,0.04)", r0 * 4.35, 2, glow + 10, 1);
+      }
+
+      ring("rgba(255,51,51,0.10)", r0 * 2.05, 1, 8, 1);
+    }
+
+    // ---------- State / Loop ----------
+    let target = 0, depth = 0;
+    let lastTouchY = 0;
+    let started = false;
+
+    // capture freeze
+    let captured = null;
+
+    function updateUIFromDepth(d) {
+      const step = getStep(d);
+      const exp = exponentFromDepth(d);
+
+      el.loc.textContent = step.label;
+      el.scale.textContent = `SCALE: 10^${exp} m`;
+      el.coord.textContent = coordLine(d);
+
+      if (el.prompt.dataset.last !== step.prompt) {
+        el.prompt.dataset.last = step.prompt;
+        el.prompt.style.opacity = 0;
+        setTimeout(() => {
+          el.prompt.textContent = step.prompt;
+          el.prompt.style.opacity = 1;
+        }, 110);
+      } else if (el.prompt.style.opacity === "0") {
+        el.prompt.style.opacity = 1;
+      }
+
+      el.legCosmic.classList.toggle("active", d < -4000);
+      el.legQuantum.classList.toggle("active", d > 4000);
+      el.legHuman.classList.toggle("active", d >= -4000 && d <= 4000);
+
+      return { step, exp };
+    }
+
+    function tick() {
+      depth += (target - depth) * DAMP;
+
+      camera.position.z = depth;
+      stars.rotation.z += IS_MOBILE ? 0.00014 : 0.00022;
+
+      renderer.render(scene, camera);
+      drawSingularity(sctx, W, H, depth, performance.now(), false);
+
+      updateUIFromDepth(depth);
+      audio.update(depth);
+
+      requestAnimationFrame(tick);
+    }
+
+    // ---------- Download helpers ----------
+    function downloadDataURL(dataURL, filename) {
+      const a = document.createElement("a");
+      a.href = dataURL;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // ---------- Export generation (Artifact + Data Log) ----------
+    function generateExports() {
+      if (!captured) return;
+
+      const subjectRaw = (el.subject.value || "").trim();
+      const subject = (subjectRaw ? subjectRaw : "UNKNOWN").toUpperCase();
+
+      captured.subject = subject;
+
+      const hash = captured.hash;
+      const ts = captured.timestamp;
+      const stepLabel = captured.step.label;
+      const quote = captured.step.prompt;
+      const exp = captured.exp;
+      const scaleText = `10^${exp} m`;
+      const coordText = `Z ${Math.round(captured.depth)} / ${MAX}`;
+
+      // ----- ARTIFACT (Gallery-grade poster) -----
+      const poster = document.createElement("canvas");
+      poster.width = POSTER_W;
+      poster.height = POSTER_H;
+      const p = poster.getContext("2d");
+
+      // Base background
+      p.fillStyle = "#080808";
+      p.fillRect(0, 0, POSTER_W, POSTER_H);
+
+      // Textured background layers (red theme - ENHANCED)
+      // Red stripe 1 - NARROW BUT VISIBLE
+      const redGrad1 = p.createLinearGradient(0, 0, POSTER_W, 0);
+      redGrad1.addColorStop(0, "transparent");
+      redGrad1.addColorStop(0.39, "transparent");
+      redGrad1.addColorStop(0.40, "rgba(255, 51, 51, 0.5)");
+      redGrad1.addColorStop(0.42, "rgba(255, 51, 51, 0.5)");
+      redGrad1.addColorStop(0.43, "transparent");
+      redGrad1.addColorStop(1, "transparent");
+      p.fillStyle = redGrad1;
+      for (let y = 0; y < POSTER_H; y += POSTER_H) {
+        p.fillRect(0, y, POSTER_W, POSTER_H);
+      }
+
+      // Red stripe 2 - NARROW BUT VISIBLE
+      const redGrad2 = p.createLinearGradient(0, 0, POSTER_W, 0);
+      redGrad2.addColorStop(0, "transparent");
+      redGrad2.addColorStop(0.59, "transparent");
+      redGrad2.addColorStop(0.60, "rgba(255, 51, 51, 0.5)");
+      redGrad2.addColorStop(0.62, "rgba(255, 51, 51, 0.5)");
+      redGrad2.addColorStop(0.63, "transparent");
+      redGrad2.addColorStop(1, "transparent");
+      p.fillStyle = redGrad2;
+      for (let y = 0; y < POSTER_H; y += POSTER_H) {
+        p.fillRect(0, y, POSTER_W, POSTER_H);
+      }
+
+      // Static noise stripes
+      const staticGrad = p.createLinearGradient(0, 0, POSTER_W, 0);
+      staticGrad.addColorStop(0, "transparent");
+      staticGrad.addColorStop(0.10, "transparent");
+      staticGrad.addColorStop(0.10, "rgba(255, 255, 255, 0.08)");
+      staticGrad.addColorStop(0.30, "rgba(255, 255, 255, 0.08)");
+      staticGrad.addColorStop(0.30, "transparent");
+      staticGrad.addColorStop(1, "transparent");
+      p.fillStyle = staticGrad;
+      for (let y = 20; y < POSTER_H; y += 70) {
+        p.fillRect(0, y, POSTER_W, 70);
+      }
+
+      // Scanlines - HIGHLY VISIBLE
+      p.fillStyle = "rgba(0, 0, 0, 0.8)";
+      for (let y = 0; y < POSTER_H; y += 2) {
+        p.fillRect(0, y, POSTER_W, 1);
+      }
+
+      // Vignette
+      const vignette = p.createRadialGradient(POSTER_W / 2, POSTER_H / 2, POSTER_H * 0.25, POSTER_W / 2, POSTER_H / 2, POSTER_H * 0.95);
+      vignette.addColorStop(0, "transparent");
+      vignette.addColorStop(1, "rgba(0, 0, 0, 0.95)");
+      p.fillStyle = vignette;
+      p.fillRect(0, 0, POSTER_W, POSTER_H);
+
+      // Monolith bounds
+      const monoX = Math.round((POSTER_W - MONO_W) / 2);
+      const monoY = 300;
+
+      // Monolith base fill
+      p.fillStyle = "#000000";
+      p.fillRect(monoX, monoY, MONO_W, MONO_H);
+
+      // Save renderer state
+      const prevSize = renderer.getSize(new THREE.Vector2());
+      const prevPR = renderer.getPixelRatio();
+      const prevAspect = camera.aspect;
+      const prevStarRot = stars.rotation.z;
+
+      // Freeze stars
+      stars.rotation.z = captured.starRot;
+
+      // Render at monolith size
+      renderer.setPixelRatio(1);
+      renderer.setSize(MONO_W, MONO_H, false);
+      camera.aspect = MONO_W / MONO_H;
+      camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+
+      // --- MONOLITH CLIP START (FIX: nothing can bleed outside the 9:16 frame) ---
+      p.save();
+      p.beginPath();
+      p.rect(monoX, monoY, MONO_W, MONO_H);
+      p.clip();
+
+      // draw scene strictly inside clip
+      p.drawImage(renderer.domElement, monoX, monoY, MONO_W, MONO_H);
+
+      // draw singularity strictly inside clip
+      p.save();
+      p.translate(monoX, monoY);
+      drawSingularity(p, MONO_W, MONO_H, captured.depth, captured.phase, true);
+      p.restore();
+
+      p.restore();
+      // --- MONOLITH CLIP END ---
+
+      // Restore renderer
+      stars.rotation.z = prevStarRot;
+      renderer.setPixelRatio(prevPR);
+      renderer.setSize(prevSize.x, prevSize.y, false);
+      camera.aspect = prevAspect;
+      camera.updateProjectionMatrix();
+
+      // Red contour border (on top)
+      p.strokeStyle = "#ff3333";
+      p.lineWidth = 6;
+      p.strokeRect(monoX, monoY, MONO_W, MONO_H);
+
+      // Corner brackets - Red
+      const cornerSize = 60;
+      const cornerOffset = 45;
+      p.strokeStyle = "rgba(255, 51, 51, 0.9)";
+      p.lineWidth = 6;
+
+      // Top-left
+      p.beginPath();
+      p.moveTo(monoX - cornerOffset, monoY - cornerOffset + cornerSize);
+      p.lineTo(monoX - cornerOffset, monoY - cornerOffset);
+      p.lineTo(monoX - cornerOffset + cornerSize, monoY - cornerOffset);
+      p.stroke();
+
+      // Top-right - WHITE
+      p.strokeStyle = "rgba(255, 255, 255, 0.9)";
+      p.beginPath();
+      p.moveTo(monoX + MONO_W + cornerOffset - cornerSize, monoY - cornerOffset);
+      p.lineTo(monoX + MONO_W + cornerOffset, monoY - cornerOffset);
+      p.lineTo(monoX + MONO_W + cornerOffset, monoY - cornerOffset + cornerSize);
+      p.stroke();
+
+
+      // Bottom-left - WHITE
+      p.strokeStyle = "rgba(255, 255, 255, 0.9)";
+      p.beginPath();
+      p.moveTo(monoX - cornerOffset, monoY + MONO_H + cornerOffset - cornerSize);
+      p.lineTo(monoX - cornerOffset, monoY + MONO_H + cornerOffset);
+      p.lineTo(monoX - cornerOffset + cornerSize, monoY + MONO_H + cornerOffset);
+      p.stroke();
+
+      // Bottom-right - RED
+      p.strokeStyle = "rgba(255, 51, 51, 0.9)";
+      p.beginPath();
+      p.moveTo(monoX + MONO_W + cornerOffset - cornerSize, monoY + MONO_H + cornerOffset);
+      p.lineTo(monoX + MONO_W + cornerOffset, monoY + MONO_H + cornerOffset);
+      p.lineTo(monoX + MONO_W + cornerOffset, monoY + MONO_H + cornerOffset - cornerSize);
+      p.stroke();
+
+      // Center info
+      p.textAlign = "center";
+      p.fillStyle = "#ffffff";
+      p.font = "700 74px 'Space Grotesk'";
+      p.fillText(`${stepLabel}`, POSTER_W / 2, monoY + MONO_H + 130);
+
+      p.font = "300 italic 44px 'Space Grotesk'";
+      p.fillStyle = "rgba(255,255,255,0.86)";
+      p.fillText(`"${quote}"`, POSTER_W / 2, monoY + MONO_H + 200);
+
+      p.font = "600 34px 'Space Grotesk'";
+      p.fillStyle = "rgba(255,255,255,0.55)";
+      p.fillText(`${scaleText}  •  ${coordText}`, POSTER_W / 2, monoY + MONO_H + 260);
+
+      // Metadata row
+      const footY = 2850;  // Standardized: 150px from bottom (3000 - 150)
+      p.font = "600 32px 'Space Grotesk'";
+      p.fillStyle = "#ffffff";
+      p.textAlign = "left";
+      p.fillText(`${hash} (1/1)`, 150, footY);
+      p.textAlign = "center";
+      p.fillText("THE OBSERVER", POSTER_W / 2, footY);
+      p.textAlign = "right";
+      p.fillText("AVERY LAKE", POSTER_W - 150, footY);
+
+      const artURL = poster.toDataURL("image/jpeg", 0.92);
+
+      // ----- DATA LOG (Certificate, light mode) -----
+      const log = document.createElement("canvas");
+      log.width = POSTER_W;
+      log.height = POSTER_H;
+      const c = log.getContext("2d");
+
+      c.fillStyle = "#f2f2f2";
+      c.fillRect(0, 0, POSTER_W, POSTER_H);
+
+      c.fillStyle = "#000";
+      c.font = "700 92px 'Space Grotesk'";
+      c.fillText("AUDIT DATA LOG", 150, 330);
+
+      c.strokeStyle = "#ff3333";
+      c.lineWidth = 6;
+      c.beginPath();
+      c.moveTo(150, 390);
+      c.lineTo(POSTER_W - 150, 390);
+      c.stroke();
+
+      c.font = "700 44px 'Space Grotesk'";
+      c.fillText("PROTOCOL: 01 // THE OBSERVER", 150, 520);
+
+      c.font = "400 40px 'Space Mono'";
+      let y = 680;
+      const lines = [
+        `SUBJECT:   ${subject}`,
+        `STEP:      ${stepLabel}`,
+        `SCALE:     ${scaleText}`,
+        `COORD:     ${coordText}`,
+        `TIMESTAMP: ${ts}`,
+        `LOCATION:  LOCAL_TERMINAL`,
+        `HASH:      ${hash}`
+      ];
+      for (const line of lines) {
+        c.fillText(line, 150, y);
+        y += 92;
+      }
+
+      c.font = "400 30px 'Space Mono'";
+      c.fillStyle = "rgba(0,0,0,0.55)";
+      c.fillText("NOTE: No geolocation collected. This log records only local audit data.", 150, POSTER_H - 170);
+
+      const logURL = log.toDataURL("image/jpeg", 0.92);
+
+      // Download state for unlock
+      let dlArtifact = false, dlLog = false;
+
+      function checkUnlock() {
+        if (dlArtifact && dlLog) {
+          el.btnCommission.classList.remove("disabled");
+          el.btnCommission.style.opacity = "1";
+          el.btnCommission.style.borderColor = "var(--accent)";
+          el.btnCommission.style.color = "var(--accent)";
+          el.btnCommission.style.boxShadow = "0 0 20px rgba(255, 51, 51, 0.3)";
+          el.btnCommission.style.cursor = "pointer";
+          el.btnCommission.style.pointerEvents = "auto";
+
+          // Mark protocol as completed in localStorage
+          try {
+            const progress = JSON.parse(localStorage.getItem('digitalAuditProgress') || '{}');
+            progress.observer = { completed: true, timestamp: Date.now() };
+            localStorage.setItem('digitalAuditProgress', JSON.stringify(progress));
+          } catch (e) { }
+        }
+      }
+
+      el.btnDlArtifact.onclick = () => {
+        const name = (el.subject.value || "").trim().toUpperCase() || "ANONYMOUS";
+        captured.subject = name;
+
+        // Update artifact with name if needed (name not on artifact in this protocol)
+        downloadDataURL(artURL, `OBSERVER_ARTIFACT_${hash}.jpg`);
+        dlArtifact = true;
+        checkUnlock();
+      };
+
+      el.btnDlLog.onclick = () => {
+        const name = (el.subject.value || "").trim().toUpperCase() || "ANONYMOUS";
+        captured.subject = name;
+
+        // TEXT DATA LOG (unified format)
+        const logContent = `═══════════════════════════════════════════
+        DIGITAL AUDIT // PROTOCOL 01
+═══════════════════════════════════════════
+
+SUBJECT ID............... ${name}
+TIMESTAMP................ ${ts}
+LOCATION................. LOCAL_TERMINAL
+UNIQUE HASH.............. ${hash}
+
+─────────────────────────────────────────────
+PROTOCOL SPECIFIC DATA:
+─────────────────────────────────────────────
+STEP..................... ${stepLabel}
+SCALE.................... ${scaleText}
+COORD.................... ${coordText}
+
+─────────────────────────────────────────────
+PHILOSOPHICAL NOTE
+─────────────────────────────────────────────
+Is the eye a black hole?
+
+You traveled to ${stepLabel} at scale ${scaleText}.
+
+The anomaly in the universe, able to observe.
+Or is it also being observed by the other black holes?
+
+─────────────────────────────────────────────
+ARTIFACT STATUS:       VERIFIED
+─────────────────────────────────────────────
+
+AUDIO: "Singularity" by AVERY LAKE
+© AVERY LAKE OFFICIAL // 2026
+THE DIGITAL AUDIT OF THE HUMAN CONDITION
+`;
+        const blob = new Blob([logContent], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.download = `OBSERVER_DATA_LOG_${hash}.txt`;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        dlLog = true;
+        checkUnlock();
+      };
+
+      // Commission email (unified format)
+      el.btnCommission.onclick = () => {
+        if (!dlArtifact || !dlLog) return;
+        const name = captured.subject || "ANONYMOUS";
+        const subject = `Protocol 01 Commission Request (${name})`;
+        const body = `Dear Avery Lake,
+
+I have completed Protocol 01: The Observer and would like to request a signed and certified physical copy.
+
+PROTOCOL DATA:
+- Subject: ${name}
+- Hash: ${hash}
+- Step: ${stepLabel}
+- Scale: ${scaleText}
+- Coord: ${coordText}
+- Timestamp: ${ts}
+
+[IMPORTANT: I have attached BOTH the ARTIFACT IMAGE and the DATA LOG to this email.]
+
+Please advise on commission details.
+
+TECHNICAL SPECIFICATIONS:
+- Size: 18″ × 24″ (recommended). Other sizes available upon request.`;
+
+        window.location.href = `mailto:hello@averylakeofficial.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      };
+    }
+
+    // ---------- Capture ----------
+    function flash() {
+      el.flash.style.opacity = 0.85;
+      setTimeout(() => el.flash.style.opacity = 0, 120);
+    }
+
+    function doCapture() {
+      const { step, exp } = updateUIFromDepth(depth);
+      captured = {
+        depth,
+        phase: performance.now(),
+        starRot: stars.rotation.z,
+        step,
+        exp,
+        hash: Math.random().toString(36).slice(2, 10).toUpperCase(),
+        timestamp: new Date().toLocaleString("en-GB"),
+        subject: null
+      };
+
+      flash();
+
+      // Call generateExports immediately to set up the artifact and hook buttons
+      generateExports();
+
+      el.overlay.classList.add("active");
+      el.subject.value = "";
+      el.subject.focus({ preventScroll: true });
+    }
+
+    // ---------- Controls ----------
+    function bindControls() {
+      el.btnUp.addEventListener("click", () => { target = -MAX; });
+      el.btnDown.addEventListener("click", () => { target = MAX; });
+
+      el.legCosmic.addEventListener("click", () => { target = -MAX; });
+      el.legHuman.addEventListener("click", () => { target = 0; });
+      el.legQuantum.addEventListener("click", () => { target = MAX; });
+
+      el.audioToggle.addEventListener("click", async () => {
+        await audio.toggle();
+        refreshAudioUI();
+      });
+
+      window.addEventListener("wheel", (e) => {
+        if (el.overlay.classList.contains("active")) return;
+        target += e.deltaY * 5;
+        target = clamp(target, -MAX, MAX);
+      }, { passive: true });
+
+      window.addEventListener("touchstart", (e) => {
+        if (el.overlay.classList.contains("active")) return;
+        lastTouchY = e.touches[0].clientY;
+      }, { passive: true });
+
+      window.addEventListener("touchmove", (e) => {
+        if (el.overlay.classList.contains("active")) return;
+        const y = e.touches[0].clientY;
+        const delta = lastTouchY - y;
+        target += delta * 12;
+        target = clamp(target, -MAX, MAX);
+        lastTouchY = y;
+        e.preventDefault();
+      }, { passive: false });
+
+      el.btnCapture.addEventListener("click", (e) => { e.preventDefault(); doCapture(); });
+      el.btnCapture.addEventListener("pointerdown", (e) => { e.preventDefault(); doCapture(); }, { passive: false });
+    }
+
+    // ---------- Start ----------
+    function startExperience() {
+      if (started) return;
+      started = true;
+
+      el.start.classList.remove("active");
+
+      resize2D();
+      initThree();
+
+      audio.init();
+      audio.setOn(true);
+      audio.resume();
+      refreshAudioUI();
+
+      const s = getStep(0);
+      el.prompt.textContent = s.prompt;
+      el.prompt.style.opacity = 1;
+
+      bindControls();
+      tick();
+    }
+
+    // Robust multi-event start for mobile
+    el.begin.addEventListener("click", (e) => { e.preventDefault(); startExperience(); });
+    el.begin.addEventListener("pointerdown", (e) => { e.preventDefault(); startExperience(); }, { passive: false });
+    el.begin.addEventListener("touchstart", (e) => { e.preventDefault(); startExperience(); }, { passive: false });
+
+  </script>
+</body>
+
+</html>
